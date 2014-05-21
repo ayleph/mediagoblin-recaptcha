@@ -7,7 +7,7 @@ This plugin enables reCAPTCHA support for Gnu MediaGoblin. To use reCAPTCHA, you
 Create a reCAPTCHA account
 ==========================
 
-Go to `https://www.google.com/recaptcha/intro/index.html`_ and click ``Get reCAPTCHA``. Sign in with your Google account and add the domain(s) for which you which to use the reCAPTCHA service. You will need the public and private keys for that domain to configure the recaptcha plugin.
+Go to https://www.google.com/recaptcha/intro/index.html and click ``Get reCAPTCHA``. Sign in with your Google account and add the domain(s) for which you which to use the reCAPTCHA service. You will need the public and private keys for that domain to configure the recaptcha plugin.
 
 Set up the recaptcha plugin
 ===========================
