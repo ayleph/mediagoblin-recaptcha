@@ -44,18 +44,6 @@
       {{ wtforms_util.render_divs(login_form, True) }}
       {% template_hook("fp_link") %}
       <div class="form_submit_buttons">
-<script type="text/javascript"
-   src="http://api.recaptcha.net/challenge?k={{ recaptcha_public_key }}">
-</script>
-
-<noscript>
-   <iframe src="http://api.recaptcha.net/noscript?k={{ recaptcha_public_key }}"
-       height="300" width="500" frameborder="0"></iframe><br>
-   <textarea name="recaptcha_challenge_field" rows="3" cols="40">
-   </textarea>
-   <input type="hidden" name="recaptcha_response_field" 
-       value="manual_challenge">
-</noscript>
         <input type="submit" value="{% trans %}Log in{% endtrans %}" class="button_form"/>
       </div>
       {% if next %}

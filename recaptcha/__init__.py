@@ -13,13 +13,17 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from pkg_resources import resource_filename
 import os
 import logging
 
+from mediagoblin.plugins.recaptcha import forms as auth_forms
+from mediagoblin.plugins.basic_auth import tools as auth_tools
 from mediagoblin.auth.tools import create_basic_user
+from mediagoblin.db.models import User
 from mediagoblin.tools import pluginapi
-
-
+from sqlalchemy import or_
+from mediagoblin.tools.staticdirect import PluginStatic
 _log = logging.getLogger(__name__)
 
 
@@ -37,15 +41,66 @@ def setup_plugin():
          'mediagoblin.plugins.recaptcha.views:register'),
         ('mediagoblin.plugins.recaptcha.login',
          '/auth/recaptcha/login/',
-         'mediagoblin.plugins.recaptcha.views:login')]
+         'mediagoblin.plugins.recaptcha.views:login'),
+        ('mediagoblin.plugins.recaptcha.edit.pass',
+         '/edit/password/',
+         'mediagoblin.plugins.recaptcha.views:change_pass'),
+        ('mediagoblin.plugins.recaptcha.forgot_password',
+         '/auth/forgot_password/',
+         'mediagoblin.plugins.recaptcha.views:forgot_password'),
+        ('mediagoblin.plugins.recaptcha.verify_forgot_password',
+         '/auth/forgot_password/verify/',
+         'mediagoblin.plugins.recaptcha.views:verify_forgot_password')]
 
     pluginapi.register_routes(routes)
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
+    pluginapi.register_template_hooks(
+        {'edit_link': 'mediagoblin/plugins/recaptcha/edit_link.html',
+         'fp_link': 'mediagoblin/plugins/recaptcha/fp_link.html',
+         'fp_head': 'mediagoblin/plugins/recaptcha/fp_head.html',
+         'create_account':
+            'mediagoblin/plugins/recaptcha/create_account_link.html'})
 
-def create_user(register_form):
-    if 'username' in register_form and 'password' not in register_form:
-        return create_basic_user(register_form)
+
+def get_user(**kwargs):
+    username = kwargs.pop('username', None)
+    if username:
+        user = User.query.filter(
+            or_(
+                User.username == username,
+                User.email == username,
+            )).first()
+        return user
+
+
+def create_user(registration_form):
+    user = get_user(username=registration_form.username.data)
+    if not user and 'password' in registration_form:
+        user = create_basic_user(registration_form)
+        user.pw_hash = gen_password_hash(
+            registration_form.password.data)
+        user.save()
+    return user
+
+
+def get_login_form(request):
+    return auth_forms.LoginForm(request.form)
+
+
+def get_registration_form(request):
+    return auth_forms.RegistrationForm(request.form)
+
+
+def gen_password_hash(raw_pass, extra_salt=None):
+    return auth_tools.bcrypt_gen_password_hash(raw_pass, extra_salt)
+
+
+def check_password(raw_pass, stored_hash, extra_salt=None):
+    if stored_hash:
+        return auth_tools.bcrypt_check_password(raw_pass,
+                                                stored_hash, extra_salt)
+    return None
 
 
 def no_pass_redirect():
@@ -55,24 +110,25 @@ def no_pass_redirect():
 def auth():
     return True
 
-#hooks = {
-#    'setup': setup_plugin,
-#    'authentication': auth,
-#    'auth_no_pass_redirect': no_pass_redirect,
-#    'auth_create_user': create_user,
-#}
+
+def append_to_global_context(context):
+    context['pass_auth'] = True
+    return context
+
+
 hooks = {
     'setup': setup_plugin,
     'authentication': auth,
-    'auth_no_pass_redirect': no_pass_redirect,
+    'auth_get_user': get_user,
     'auth_create_user': create_user,
-#    'setup': setup_plugin,
-#    'authentication': Auth,
-#    'auth_extra_validation': extra_validation,
-#    'auth_create_user': create_user,
-#    'auth_no_pass_redirect': no_pass_redirect,
-#    ('mediagoblin.auth.register',
-#     'mediagoblin/auth/register.html'): add_to_form_context,
-#    ('mediagoblin.auth.login',
-#     'mediagoblin/auth/login.html'): add_to_form_context
+    'auth_get_login_form': get_login_form,
+    'auth_get_registration_form': get_registration_form,
+    'auth_no_pass_redirect': no_pass_redirect,
+    'auth_gen_password_hash': gen_password_hash,
+    'auth_check_password': check_password,
+    'auth_fake_login_attempt': auth_tools.fake_login_attempt,
+    #'template_global_context': append_to_global_context,
+    'static_setup': lambda: PluginStatic(
+        'coreplugin_recaptcha',
+        resource_filename('mediagoblin.plugins.recaptcha', 'static'))
 }
