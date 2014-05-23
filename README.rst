@@ -27,7 +27,7 @@ Set up the recaptcha plugin
 Configure the recaptcha plugin
 ==============================
 
-You must provide the public and private keys for your reCAPTCHA domain and specify whether or not to use SSL. If your site is served over https, set RECAPTCHA_USE_SSL = true. If your site is served over http, set RECAPTCHA_USE_SSL = false. Failure to correctly set RECAPTCHA_USE_SSL will prevent the reCAPTCHA widget from displaying properly. Add the following entries to your mediagoblin_local.ini file under the recaptcha plugin::
+You must provide the public and private keys for your reCAPTCHA domain and specify whether or not to use SSL. If your site is served over https, set ``RECAPTCHA_USE_SSL = true``. If your site is served over http, set ``RECAPTCHA_USE_SSL = false``. Failure to correctly set ``RECAPTCHA_USE_SSL`` will prevent the reCAPTCHA widget from displaying properly. Add the following entries to your mediagoblin_local.ini file under the recaptcha plugin::
 
     [[mediagoblin.plugins.recaptcha]]
     RECAPTCHA_PUBLIC_KEY = 'domainpublickey'
