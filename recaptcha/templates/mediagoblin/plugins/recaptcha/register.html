@@ -39,11 +39,11 @@
       {{ csrf_token }}
       <div class="form_submit_buttons">
 <script type="text/javascript"
-   src="{{ recaptcha_protocol }}://api.recaptcha.net/challenge?k={{ recaptcha_public_key }}">
+   src="{{ recaptcha_protocol }}://www.google.com/recaptcha/api/challenge?k={{ recaptcha_public_key }}">
 </script>
 
 <noscript>
-   <iframe src="{{ recaptcha_protocol  }}://api.recaptcha.net/noscript?k={{ recaptcha_public_key }}"
+   <iframe src="{{ recaptcha_protocol }}://www.google.com/recaptcha/api/noscript?k={{ recaptcha_public_key }}"
        height="300" width="500" frameborder="0"></iframe><br>
    <textarea name="recaptcha_challenge_field" rows="3" cols="40">
    </textarea>
