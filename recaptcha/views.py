@@ -151,7 +151,7 @@ def forgot_password(request):
     Sends an email with an url to renew forgotten password.
     Use GET querystring parameter 'username' to pre-populate the input field
     """
-    fp_form = forms.ForgotPassForm(request.form,
+    fp_form = auth_forms.ForgotPassForm(request.form,
                                    username=request.args.get('username'))
 
     if not (request.method == 'POST' and fp_form.validate()):
@@ -245,7 +245,7 @@ def verify_forgot_password(request):
 
     # check if user active and has email verified
     if user.has_privilege(u'active'):
-        cp_form = forms.ChangeForgotPassForm(formdata_vars)
+        cp_form = auth_forms.ChangeForgotPassForm(formdata_vars)
 
         if request.method == 'POST' and cp_form.validate():
             user.pw_hash = tools.bcrypt_gen_password_hash(
@@ -308,7 +308,7 @@ def _process_for_token(request):
 
 @require_active_login
 def change_pass(request):
-    form = forms.ChangePassForm(request.form)
+    form = auth_forms.ChangePassForm(request.form)
     user = request.user
 
     if request.method == 'POST' and form.validate():
