@@ -32,8 +32,6 @@ PLUGIN_DIR = os.path.dirname(__file__)
 
 def setup_plugin():
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
-    if config:
-        _log.info('%r' % config)
 
     routes = [
         ('mediagoblin.plugins.recaptcha.register',
