@@ -31,7 +31,18 @@ PLUGIN_DIR = os.path.dirname(__file__)
 
 
 def setup_plugin():
+    _log.info('Setting up recaptcha...')
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
+    if config:
+        if config.get('RECAPTCHA_USE_SSL') == True:
+            _log.info('reCAPTCHA is configured to use SSL.')
+        else:
+            _log.info('reCAPTCHA is NOT configured to use SSL.')
+
+        if config.get('RECAPTCHA_PUBLIC_KEY') == 'domainpublickey':
+            _log.warn('reCAPTCHA public key was not specified.')
+        if config.get('RECAPTCHA_PRIVATE_KEY') == 'domainprivatekey':
+            _log.warn('reCAPTCHA private key was not specified.')
 
     routes = [
         ('mediagoblin.plugins.recaptcha.register',
@@ -59,6 +70,8 @@ def setup_plugin():
          'fp_head': 'mediagoblin/plugins/recaptcha/fp_head.html',
          'create_account':
             'mediagoblin/plugins/recaptcha/create_account_link.html'})
+
+    _log.info('Done setting up recaptcha!')
 
 
 def get_user(**kwargs):
