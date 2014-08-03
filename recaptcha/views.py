@@ -56,7 +56,7 @@ def login(request):
 
     #if request.method == 'POST' and login_form.validate():
     if request.method == 'POST':
-        
+
         if login_form.validate():
             user = check_login_simple(
                 login_form.username.data,
