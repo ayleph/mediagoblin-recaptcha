@@ -56,10 +56,11 @@ def login(request):
 
     #if request.method == 'POST' and login_form.validate():
     if request.method == 'POST':
-        username = login_form.username.data
-
+        
         if login_form.validate():
-            user = check_login_simple(username, login_form.password.data)
+            user = check_login_simple(
+                login_form.username.data,
+                login_form.password.data)
 
             if user:
                 # set up login in session
