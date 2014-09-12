@@ -21,7 +21,7 @@ from mediagoblin.auth.tools import normalize_user_or_email_field
 #from wtfrecaptcha.fields import RecaptchaField
 
 class RegistrationForm(wtforms.Form):
-    username = wtforms.TextField(
+    username = wtforms.StringField(
         _('Username'),
         [wtforms.validators.Required(),
          normalize_user_or_email_field(allow_email=False)])
@@ -29,14 +29,14 @@ class RegistrationForm(wtforms.Form):
         _('Password'),
         [wtforms.validators.Required(),
          wtforms.validators.Length(min=5, max=1024)])
-    email = wtforms.TextField(
+    email = wtforms.StringField(
         _('Email address'),
         [wtforms.validators.Required(),
          normalize_user_or_email_field(allow_user=False)])
 
 
 class LoginForm(wtforms.Form):
-    username = wtforms.TextField(
+    username = wtforms.StringField(
         _('Username or Email'),
         [wtforms.validators.Required(),
          normalize_user_or_email_field()])
@@ -49,7 +49,7 @@ class LoginForm(wtforms.Form):
 
 
 class ForgotPassForm(wtforms.Form):
-    username = wtforms.TextField(
+    username = wtforms.StringField(
         _('Username or email'),
         [wtforms.validators.Required(),
          normalize_user_or_email_field()])
