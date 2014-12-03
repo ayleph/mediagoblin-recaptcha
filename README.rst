@@ -20,9 +20,9 @@ Set up the recaptcha plugin
 
     [[mediagoblin.plugins.recaptcha]]
 
-3. Remove (or comment) the following from your mediagoblin_local.ini file in the ``[plugins]`` section::
+3. Disable the basic authentication plugin in your mediagoblin_local.ini file::
 
-    #[[mediagoblin.plugins.basic_auth]]
+    [[-mediagoblin.plugins.basic_auth]]
 
 Configure the recaptcha plugin
 ==============================
