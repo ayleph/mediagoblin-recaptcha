@@ -12,17 +12,28 @@ Go to https://www.google.com/recaptcha/intro/index.html and click ``Get reCAPTCH
 Set up the recaptcha plugin
 ===========================
 
-1. Install the ``recaptcha-client`` python package::
+1. Download the ``mediagoblin-recaptcha`` source and copy the ``recaptcha`` directory into the MediaGoblin plugins directory::
 
-    pip install recaptcha-client
+    $ git clone https://github.com/ayleph/mediagoblin-recaptcha.git
+    $ cp -r mediagoblin-recaptcha/recaptcha /path/to/mediagoblin/mediagoblin/plugins/
     
-2. Add the following to your mediagoblin_local.ini file in the ``[plugins]`` section::
+2. Install the ``recaptcha-client`` python package, which is a prerequisite for mediagoblin-recaptcha::
+
+    $ pip install recaptcha-client
+
+3. Enable the mediagoblin-recaptcha plugin by adding the following line to the ``[plugins]`` section of your mediagoblin_local.ini file::
 
     [[mediagoblin.plugins.recaptcha]]
 
-3. Disable the basic authentication plugin in your mediagoblin_local.ini file::
+4. Disable the basic authentication plugin in your mediagoblin_local.ini file. Change::
+
+    [[mediagoblin.plugins.basic_auth]]
+
+to::
 
     [[-mediagoblin.plugins.basic_auth]]
+
+5. Restart the MediaGoblin instance for the config file changes to be effective.
 
 Configure the recaptcha plugin
 ==============================
