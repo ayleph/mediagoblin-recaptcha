@@ -118,7 +118,7 @@ def register(request):
 
         goblin = response.is_valid
         if response.error_code:
-            _log.warning("reCAPTCHA error: %r", response.error_code)
+            _log.debug("reCAPTCHA error: %r", response.error_code)
 
         if goblin:
             user = register_user(request, register_form)
