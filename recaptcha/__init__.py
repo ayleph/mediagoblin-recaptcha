@@ -52,44 +52,8 @@ def setup_plugin():
     _log.info('Done setting up recaptcha!')
 
 
-def get_user(**kwargs):
-    username = kwargs.pop('username', None)
-    if username:
-        user = User.query.filter(
-            or_(
-                User.username == username,
-                User.email == username,
-            )).first()
-        return user
-
-
-def create_user(registration_form):
-    user = get_user(username=registration_form.username.data)
-    if not user and 'password' in registration_form:
-        user = create_basic_user(registration_form)
-        user.pw_hash = gen_password_hash(
-            registration_form.password.data)
-        user.save()
-    return user
-
-
-def get_login_form(request):
-    return auth_forms.LoginForm(request.form)
-
-
 def get_registration_form(request):
     return auth_forms.RegistrationForm(request.form)
-
-
-def gen_password_hash(raw_pass, extra_salt=None):
-    return auth_tools.bcrypt_gen_password_hash(raw_pass, extra_salt)
-
-
-def check_password(raw_pass, stored_hash, extra_salt=None):
-    if stored_hash:
-        return auth_tools.bcrypt_check_password(raw_pass,
-                                                stored_hash, extra_salt)
-    return None
 
 
 def no_pass_redirect():
