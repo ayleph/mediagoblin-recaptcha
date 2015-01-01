@@ -44,24 +44,6 @@ def setup_plugin():
         if config.get('RECAPTCHA_PRIVATE_KEY') == 'domainprivatekey':
             _log.warn('reCAPTCHA private key was not specified.')
 
-    routes = [
-        ('mediagoblin.plugins.recaptcha.register',
-         '/auth/recaptcha/register/',
-         'mediagoblin.plugins.recaptcha.views:register'),
-        ('mediagoblin.plugins.recaptcha.login',
-         '/auth/recaptcha/login/',
-         'mediagoblin.plugins.recaptcha.views:login'),
-        ('mediagoblin.plugins.recaptcha.edit.pass',
-         '/edit/password/',
-         'mediagoblin.plugins.recaptcha.views:change_pass'),
-        ('mediagoblin.plugins.recaptcha.forgot_password',
-         '/auth/forgot_password/',
-         'mediagoblin.plugins.recaptcha.views:forgot_password'),
-        ('mediagoblin.plugins.recaptcha.verify_forgot_password',
-         '/auth/forgot_password/verify/',
-         'mediagoblin.plugins.recaptcha.views:verify_forgot_password')]
-
-    pluginapi.register_routes(routes)
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
