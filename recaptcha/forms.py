@@ -33,3 +33,7 @@ class RegistrationForm(wtforms.Form):
         _('Email address'),
         [wtforms.validators.Required(),
          normalize_user_or_email_field(allow_user=False)])
+    #recaptcha_response_field = wtforms.HiddenField('')
+    recaptcha_response_field = wtforms.StringField(
+        _('CAPTCHA'))
+    recaptcha_challenge_field = wtforms.HiddenField('')
