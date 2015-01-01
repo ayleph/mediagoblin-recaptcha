@@ -52,6 +52,49 @@ def get_registration_form(request):
     return captcha_forms.RegistrationForm(request.form)
 
 
+def extra_validation(register_form):
+    extra_validation_passes = False
+
+    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
+
+    if register_form.validate():
+        #recaptcha_challenge = request.form['recaptcha_challenge_field']
+        #recaptcha_response = request.form['recaptcha_response_field']
+        #register_form.recaptcha_response_field.data = 'testme'
+        recaptcha_challenge = register_form.recaptcha_challenge_field.data if 'recaptcha_challenge_field' in register_form else None
+        #recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
+        recaptcha_response = register_form.recaptcha_response_field.data
+        remote_addr = register_form.recaptcha.data if 'recaptcha_remote_addr' in register_form else None
+
+        _log.debug("response field is: %r", recaptcha_response)
+        _log.debug("challenge field is: %r", recaptcha_challenge)
+        response = captcha.submit(
+            recaptcha_challenge,
+            recaptcha_response,
+            config.get('RECAPTCHA_PRIVATE_KEY'),
+            #request.remote_addr,
+            remote_addr,
+            )
+
+        #goblin = response.is_valid
+        extra_validation_passes = response.is_valid
+        if response.error_code:
+            _log.debug("reCAPTCHA error: %r", response.error_code)
+
+        if not extra_validation_passes:
+            register_form.recaptcha_response_field.errors.append(
+                _('Sorry, captcha was incorrect. Please try again.'))
+
+    #return render_to_response(
+    #    request,
+    #    'mediagoblin/plugins/recaptcha/register.html',
+    #    {'register_form': register_form,
+    #     'post_url': request.urlgen('mediagoblin.plugins.recaptcha.register'),
+    #     'recaptcha_public_key': config.get('RECAPTCHA_PUBLIC_KEY'),
+    #     'recaptcha_protocol' : recaptcha_protocol})
+    return extra_validation_passes
+
+
 def no_pass_redirect():
     return 'recaptcha'
 
@@ -65,14 +108,8 @@ def append_to_global_context(context):
 
 hooks = {
     'setup': setup_plugin,
-    'auth_get_user': get_user,
-    'auth_create_user': create_user,
-    'auth_get_login_form': get_login_form,
     'auth_get_registration_form': get_registration_form,
-    'auth_no_pass_redirect': no_pass_redirect,
-    'auth_gen_password_hash': gen_password_hash,
-    'auth_check_password': check_password,
-    'auth_fake_login_attempt': auth_tools.fake_login_attempt,
+    #'auth_no_pass_redirect': no_pass_redirect,
     #'template_global_context': append_to_global_context,
     'static_setup': lambda: PluginStatic(
         'coreplugin_recaptcha',
