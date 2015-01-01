@@ -47,11 +47,7 @@ def setup_plugin():
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
-        {'edit_link': 'mediagoblin/plugins/recaptcha/edit_link.html',
-         'fp_link': 'mediagoblin/plugins/recaptcha/fp_link.html',
-         'fp_head': 'mediagoblin/plugins/recaptcha/fp_head.html',
-         'create_account':
-            'mediagoblin/plugins/recaptcha/create_account_link.html'})
+        {'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
 
     _log.info('Done setting up recaptcha!')
 
