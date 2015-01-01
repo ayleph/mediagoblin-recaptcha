@@ -56,8 +56,6 @@ def no_pass_redirect():
     return 'recaptcha'
 
 
-def auth():
-    return True
 
 
 def append_to_global_context(context):
@@ -67,7 +65,6 @@ def append_to_global_context(context):
 
 hooks = {
     'setup': setup_plugin,
-    'authentication': auth,
     'auth_get_user': get_user,
     'auth_create_user': create_user,
     'auth_get_login_form': get_login_form,
