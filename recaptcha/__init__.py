@@ -17,12 +17,8 @@ from pkg_resources import resource_filename
 import os
 import logging
 
-from mediagoblin.plugins.recaptcha import forms as auth_forms
-from mediagoblin.plugins.basic_auth import tools as auth_tools
-from mediagoblin.auth.tools import create_basic_user
-from mediagoblin.db.models import User
+from mediagoblin.plugins.recaptcha import forms as captcha_forms
 from mediagoblin.tools import pluginapi
-from sqlalchemy import or_
 from mediagoblin.tools.staticdirect import PluginStatic
 _log = logging.getLogger(__name__)
 
@@ -53,7 +49,7 @@ def setup_plugin():
 
 
 def get_registration_form(request):
-    return auth_forms.RegistrationForm(request.form)
+    return captcha_forms.RegistrationForm(request.form)
 
 
 def no_pass_redirect():
