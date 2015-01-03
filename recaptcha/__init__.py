@@ -105,8 +105,6 @@ def no_pass_redirect():
     return 'recaptcha'
 
 
-
-
 def add_to_form_context(context):
     recaptcha_protocol = ''
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
@@ -134,5 +132,4 @@ hooks = {
     #    resource_filename('mediagoblin.plugins.recaptcha', 'static'))
     ('mediagoblin.auth.register',
      'mediagoblin/auth/register.html'): add_to_form_context,
-    'registration_form_transform': transform_registration_form
 }
