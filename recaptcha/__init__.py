@@ -49,7 +49,8 @@ def setup_plugin():
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
-        {'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
+        {'head': 'mediagoblin/plugins/recaptcha/bits/recaptcha_extra_head.html',
+         'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
 
     _log.info('Done setting up recaptcha!')
 
@@ -72,8 +73,8 @@ def extra_validation(register_form):
         recaptcha_response = register_form.recaptcha_response_field.data
         remote_addr = register_form.recaptcha.data if 'recaptcha_remote_addr' in register_form else None
 
-        _log.debug("response field is: %r", recaptcha_response)
-        _log.debug("challenge field is: %r", recaptcha_challenge)
+        _log.debug('response field is: %r', recaptcha_response)
+        _log.debug('challenge field is: %r', recaptcha_challenge)
         response = captcha.submit(
             recaptcha_challenge,
             recaptcha_response,
@@ -85,7 +86,7 @@ def extra_validation(register_form):
         #goblin = response.is_valid
         extra_validation_passes = response.is_valid
         if response.error_code:
-            _log.debug("reCAPTCHA error: %r", response.error_code)
+            _log.debug('reCAPTCHA error: %r', response.error_code)
 
         if not extra_validation_passes:
             register_form.recaptcha_response_field.errors.append(
@@ -112,7 +113,7 @@ def add_to_form_context(context):
         recaptcha_protocol = 'https'
     else:
         recaptcha_protocol = 'http'
-    _log.debug("Connecting to reCAPTCHA service via %r", recaptcha_protocol)
+    _log.debug('Connecting to reCAPTCHA service via %r', recaptcha_protocol)
 
     context['captcha'] = True
     context['recaptcha_protocol'] = recaptcha_protocol
