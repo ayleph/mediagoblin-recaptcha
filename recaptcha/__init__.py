@@ -65,13 +65,9 @@ def extra_validation(register_form):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
 
     if register_form.validate():
-        #recaptcha_challenge = request.form['recaptcha_challenge_field']
-        #recaptcha_response = request.form['recaptcha_response_field']
-        #register_form.recaptcha_response_field.data = 'testme'
         recaptcha_challenge = register_form.recaptcha_challenge_field.data if 'recaptcha_challenge_field' in register_form else None
-        #recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
-        recaptcha_response = register_form.recaptcha_response_field.data
-        remote_addr = register_form.recaptcha.data if 'recaptcha_remote_addr' in register_form else None
+        recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
+        remote_addr = register_form.recaptcha_remote_addr.data if 'recaptcha_remote_addr' in register_form else None
 
         _log.debug('response field is: %r', recaptcha_response)
         _log.debug('challenge field is: %r', recaptcha_challenge)
@@ -92,13 +88,6 @@ def extra_validation(register_form):
             register_form.recaptcha_response_field.errors.append(
                 _('Sorry, captcha was incorrect. Please try again.'))
 
-    #return render_to_response(
-    #    request,
-    #    'mediagoblin/plugins/recaptcha/register.html',
-    #    {'register_form': register_form,
-    #     'post_url': request.urlgen('mediagoblin.plugins.recaptcha.register'),
-    #     'recaptcha_public_key': config.get('RECAPTCHA_PUBLIC_KEY'),
-    #     'recaptcha_protocol' : recaptcha_protocol})
     return extra_validation_passes
 
 
