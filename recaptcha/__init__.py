@@ -22,7 +22,6 @@ from mediagoblin import mg_globals, messages
 from mediagoblin.plugins.recaptcha import forms as captcha_forms
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
-from mediagoblin.tools.staticdirect import PluginStatic
 
 from recaptcha.client import captcha
 
@@ -117,9 +116,6 @@ hooks = {
     'auth_get_registration_form': get_registration_form,
     #'auth_no_pass_redirect': no_pass_redirect,
     #'template_global_context': append_to_global_context,
-    #'static_setup': lambda: PluginStatic(
-    #    'coreplugin_recaptcha',
-    #    resource_filename('mediagoblin.plugins.recaptcha', 'static'))
     ('mediagoblin.auth.register',
      'mediagoblin/auth/register.html'): add_to_form_context,
 }
