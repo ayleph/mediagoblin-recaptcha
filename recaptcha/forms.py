@@ -16,24 +16,10 @@
 import wtforms
 
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
-from mediagoblin.auth.tools import normalize_user_or_email_field
+from mediagoblin.plugins.basic_auth.forms import RegistrationForm
 
-#from wtfrecaptcha.fields import RecaptchaField
 
-class RegistrationForm(wtforms.Form):
-    username = wtforms.StringField(
-        _('Username'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field(allow_email=False)])
-    password = wtforms.PasswordField(
-        _('Password'),
-        [wtforms.validators.Required(),
-         wtforms.validators.Length(min=5, max=1024)])
-    email = wtforms.StringField(
-        _('Email address'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field(allow_user=False)])
-    #recaptcha_response_field = wtforms.HiddenField('')
+class CaptchaForm(RegistrationForm):
     recaptcha_response_field = wtforms.StringField(
         _('CAPTCHA'))
     recaptcha_challenge_field = wtforms.HiddenField('')
