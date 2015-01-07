@@ -86,10 +86,6 @@ def extra_validation(register_form):
     return extra_validation_passes
 
 
-def no_pass_redirect():
-    return 'recaptcha'
-
-
 def add_to_form_context(context):
     recaptcha_protocol = ''
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
@@ -109,8 +105,6 @@ def add_to_form_context(context):
 hooks = {
     'setup': setup_plugin,
     'auth_extra_validation': extra_validation,
-    #'auth_no_pass_redirect': no_pass_redirect,
-    #'template_global_context': append_to_global_context,
     ('mediagoblin.auth.register',
      'mediagoblin/auth/register.html'): add_to_form_context,
 }
