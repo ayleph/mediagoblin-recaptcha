@@ -54,10 +54,6 @@ def setup_plugin():
     _log.info('Done setting up recaptcha!')
 
 
-def get_registration_form(request):
-    return captcha_forms.RegistrationForm(request.form)
-
-
 def extra_validation(register_form):
     extra_validation_passes = False
 
@@ -113,7 +109,6 @@ def add_to_form_context(context):
 hooks = {
     'setup': setup_plugin,
     'auth_extra_validation': extra_validation,
-    'auth_get_registration_form': get_registration_form,
     #'auth_no_pass_redirect': no_pass_redirect,
     #'template_global_context': append_to_global_context,
     ('mediagoblin.auth.register',
