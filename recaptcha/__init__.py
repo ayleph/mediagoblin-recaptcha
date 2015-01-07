@@ -19,7 +19,7 @@ import logging
 import wtforms
 
 from mediagoblin import mg_globals, messages
-from mediagoblin.plugins.recaptcha import forms as captcha_forms
+from mediagoblin.plugins.basic_auth.forms import RegistrationForm
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
 
