@@ -18,15 +18,12 @@ import os
 import logging
 import wtforms
 
-from mediagoblin import mg_globals, messages
 from mediagoblin.plugins.basic_auth.forms import RegistrationForm
 from mediagoblin.plugins.recaptcha import tools as captcha_tools
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
 
 _log = logging.getLogger(__name__)
-
-
 PLUGIN_DIR = os.path.dirname(__file__)
 
 
