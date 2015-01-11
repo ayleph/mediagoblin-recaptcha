@@ -20,10 +20,9 @@ import wtforms
 
 from mediagoblin import mg_globals, messages
 from mediagoblin.plugins.basic_auth.forms import RegistrationForm
+from mediagoblin.plugins.recaptcha import tools as captcha_tools
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
-
-from recaptcha.client import captcha
 
 _log = logging.getLogger(__name__)
 
@@ -58,33 +57,15 @@ def setup_plugin():
 
 
 def extra_validation(register_form):
-    extra_validation_passes = False
+    recaptcha_challenge = register_form.recaptcha_challenge_field.data if 'recaptcha_challenge_field' in register_form else None
+    recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
+    remote_addr = register_form.recaptcha_remote_addr.data if 'recaptcha_remote_addr' in register_form else None
 
-    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
+    extra_validation_passes = captcha_tools.validate_captcha(recaptcha_challenge, recaptcha_response, remote_addr)
 
-    if register_form.validate():
-        recaptcha_challenge = register_form.recaptcha_challenge_field.data if 'recaptcha_challenge_field' in register_form else None
-        recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
-        remote_addr = register_form.recaptcha_remote_addr.data if 'recaptcha_remote_addr' in register_form else None
-
-        _log.debug('response field is: %r', recaptcha_response)
-        _log.debug('challenge field is: %r', recaptcha_challenge)
-        response = captcha.submit(
-            recaptcha_challenge,
-            recaptcha_response,
-            config.get('RECAPTCHA_PRIVATE_KEY'),
-            #request.remote_addr,
-            remote_addr,
-            )
-
-        #goblin = response.is_valid
-        extra_validation_passes = response.is_valid
-        if response.error_code:
-            _log.debug('reCAPTCHA error: %r', response.error_code)
-
-        if not extra_validation_passes:
-            register_form.recaptcha_response_field.errors.append(
-                _('Sorry, captcha was incorrect. Please try again.'))
+    if not extra_validation_passes:
+        register_form.recaptcha_response_field.errors.append(
+            _('Sorry, captcha was incorrect. Please try again.'))
 
     return extra_validation_passes
 
