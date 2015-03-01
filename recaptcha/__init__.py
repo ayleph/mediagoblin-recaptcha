@@ -47,9 +47,6 @@ def setup_plugin():
         {'head': 'mediagoblin/plugins/recaptcha/bits/recaptcha_extra_head.html',
          'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
 
-    RegistrationForm.append_field('recaptcha_response_field',wtforms.StringField('reCAPTCHA response'))
-    RegistrationForm.append_field('recaptcha_challenge_field',wtforms.HiddenField(''))
-
     _log.info('Done setting up recaptcha!')
 
 
@@ -85,7 +82,7 @@ def add_to_form_context(context):
 
 hooks = {
     'setup': setup_plugin,
-    'auth_extra_validation': extra_validation,
+    'auth_captcha_challenge': captcha_tools.captcha_challenge,
     ('mediagoblin.auth.register',
      'mediagoblin/auth/register.html'): add_to_form_context,
 }
