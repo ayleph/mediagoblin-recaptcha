@@ -13,12 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from pkg_resources import resource_filename
 import os
 import logging
-import wtforms
 
-from mediagoblin.plugins.basic_auth.forms import RegistrationForm
 from mediagoblin.plugins.recaptcha import tools as captcha_tools
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
@@ -44,24 +41,9 @@ def setup_plugin():
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
-        {'head': 'mediagoblin/plugins/recaptcha/bits/recaptcha_extra_head.html',
-         'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
+        {'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
 
     _log.info('Done setting up recaptcha!')
-
-
-def extra_validation(register_form):
-    recaptcha_challenge = register_form.recaptcha_challenge_field.data if 'recaptcha_challenge_field' in register_form else None
-    recaptcha_response = register_form.recaptcha_response_field.data if 'recaptcha_response_field' in register_form else None
-    remote_addr = register_form.recaptcha_remote_addr.data if 'recaptcha_remote_addr' in register_form else None
-
-    extra_validation_passes = captcha_tools.validate_captcha(recaptcha_challenge, recaptcha_response, remote_addr)
-
-    if not extra_validation_passes:
-        register_form.recaptcha_response_field.errors.append(
-            _('Sorry, captcha was incorrect. Please try again.'))
-
-    return extra_validation_passes
 
 
 def add_to_form_context(context):
