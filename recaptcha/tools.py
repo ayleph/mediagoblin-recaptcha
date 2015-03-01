@@ -15,7 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 
+from mediagoblin import messages
 from mediagoblin.tools import pluginapi
+from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from recaptcha.client import captcha
 
 import urllib2
@@ -74,4 +76,4 @@ def captcha_challenge(request):
             messages.WARNING,
             _('Sorry, captcha was incorrect. Please try again.'))
 
-    return captcha_is_validated
+    return captcha_challenge_passes
