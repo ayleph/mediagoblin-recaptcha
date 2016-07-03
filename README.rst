@@ -18,37 +18,37 @@ Set up the recaptcha plugin
 1. Download the ``mediagoblin-recaptcha`` source and copy the 
    ``recaptcha`` directory into the MediaGoblin plugins directory.
 
-  ::
+   ::
 
-    $ git clone https://github.com/ayleph/mediagoblin-recaptcha.git
-    $ cp -r mediagoblin-recaptcha/recaptcha /path/to/mediagoblin/mediagoblin/plugins/
+     $ git clone https://github.com/ayleph/mediagoblin-recaptcha.git
+     $ cp -r mediagoblin-recaptcha/recaptcha /path/to/mediagoblin/mediagoblin/plugins/
     
 2. Install the ``recaptcha-client`` python package, which is a 
    prerequisite for mediagoblin-recaptcha.
 
-  ::
+   ::
 
-    $ pip install recaptcha-client
+     $ pip install recaptcha-client
 
 3. Enable the mediagoblin-recaptcha plugin by adding the following line 
    to the ``[plugins]`` section of your mediagoblin configuration file.
 
-  ::
+   ::
 
-    [[mediagoblin.plugins.recaptcha]]
+     [[mediagoblin.plugins.recaptcha]]
 
 4. Disable the basic authentication plugin in your mediagoblin 
    configuration file. Change
 
-::
+   ::
 
-    [[mediagoblin.plugins.basic_auth]]
+     [[mediagoblin.plugins.basic_auth]]
 
    to
 
-::
+   ::
 
-    [[-mediagoblin.plugins.basic_auth]]
+     [[-mediagoblin.plugins.basic_auth]]
 
 5. Restart the MediaGoblin instance for the configuration file changes 
    to be effective.
