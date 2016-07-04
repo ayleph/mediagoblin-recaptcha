@@ -10,7 +10,10 @@ the ``basic_auth`` plugin.
 Create a reCAPTCHA account
 ==========================
 
-Go to https://www.google.com/recaptcha/intro/index.html and click ``Get reCAPTCHA``. Sign in with your Google account and add the domain(s) for which you which to use the reCAPTCHA service. You will need the public and private keys for that domain to configure the recaptcha plugin.
+Go to reCAPTCHA_ and click ``Get reCAPTCHA``. Sign in with your Google 
+account and add the domain for which you wish to use the reCAPTCHA 
+service. You will need the public and private keys for that domain to 
+configure the recaptcha plugin.
 
 Set up the recaptcha plugin
 ===========================
@@ -70,3 +73,7 @@ file under the recaptcha plugin.
     RECAPTCHA_PUBLIC_KEY = 'domainpublickey'
     RECAPTCHA_PRIVATE_KEY = 'domainprivatekey'
     RECAPTCHA_USE_SSL = true/false
+
+.. external links
+
+.. _reCAPTCHA: https://www.google.com/recaptcha/intro/index.html
