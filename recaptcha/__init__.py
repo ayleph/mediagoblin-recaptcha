@@ -57,7 +57,7 @@ def add_to_form_context(context):
 
     context['captcha'] = True
     context['recaptcha_protocol'] = recaptcha_protocol
-    context['recaptcha_public_key'] = config.get('RECAPTCHA_PUBLIC_KEY'),
+    context['recaptcha_public_key'] = config.get('RECAPTCHA_PUBLIC_KEY')
 
     return context
 
