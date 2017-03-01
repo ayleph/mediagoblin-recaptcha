@@ -26,36 +26,6 @@ import json
 _log = logging.getLogger(__name__)
 
 
-def _captcha_challenge(request):
-    captcha_challenge_passes = False
-
-    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
-    recaptcha_private_key = config.get('RECAPTCHA_PRIVATE_KEY')
-    captcha_is_validated = False
-
-    response = captcha.submit(
-        recaptcha_challenge,
-        recaptcha_response,
-        recaptcha_private_key,
-        remote_addr,
-    )
-
-    captcha_is_validated = response.is_valid
-    if response.error_code:
-        _log.warning('reCAPTCHA error: %r', response.error_code)
-
-    if not captcha_challenge_passes:
-        _log.debug('challenge field is: %r', recaptcha_challenge)
-        _log.debug('response field is: %r', recaptcha_response)
-        _log.debug('remote address is: %r', remote_addr)
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _('Sorry, captcha was incorrect. Please try again.'))
-
-    return captcha_challenge_passes
-
-
 def captcha_challenge(request):
     captcha_challenge_passes = False
 
