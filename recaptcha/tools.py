@@ -20,30 +20,42 @@ from mediagoblin.tools import pluginapi
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from recaptcha.client import captcha
 
-import urllib2
 import json
+import urllib2
 
 _log = logging.getLogger(__name__)
 
 
-def captcha_challenge(request):
-    captcha_challenge_passes = False
-
+def extra_validation(register_form):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     recaptcha_private_key = config.get('RECAPTCHA_PRIVATE_KEY')
-    recaptcha_response = request.form['g-recaptcha-response']
-    remote_addr = request.remote_addr
 
-    url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_private_key, recaptcha_response, remote_addr)
-    response = json.loads(urllib2.urlopen(url).read())
-    captcha_challenge_passes = response['success']
+    if 'g_recaptcha_response' in register_form:
+        recaptcha_response = register_form.g_recaptcha_response.data
+        if recaptcha_response == u'':
+            for raw_data in register_form.g_recaptcha_response.raw_data:
+                if raw_data != u'':
+                    recaptcha_response = raw_data
+
+    if 'remote_address' in register_form:
+        remote_address = register_form.remote_address.data
+        if remote_address == u'':
+            for raw_data in register_form.remote_address.raw_data:
+                if raw_data != u'':
+                    remote_address = raw_data
+
+    captcha_challenge_passes = False
+
+    if recaptcha_response:
+        url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_private_key, recaptcha_response, remote_address)
+        response = json.loads(urllib2.urlopen(url).read())
+        captcha_challenge_passes = response['success']
 
     if not captcha_challenge_passes:
-        _log.debug('response is: %r', recaptcha_response)
-        _log.debug('remote address is: %r', remote_addr)
-        messages.add_message(
-            request,
-            messages.WARNING,
-            _('Sorry, captcha was incorrect. Please try again.'))
+        register_form.g_recaptcha_response.errors.append(
+            _('Sorry, CAPTCHA attempt failed.'))
+        _log.debug('captcha response is: %r', recaptcha_response)
+        _log.debug('remote address is: %r', remote_address)
+        _log.debug('server response is: %r' % response)
 
     return captcha_challenge_passes

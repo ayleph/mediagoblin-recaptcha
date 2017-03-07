@@ -15,10 +15,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import logging
+import wtforms
 
+from mediagoblin.plugins.recaptcha import forms as captcha_forms
 from mediagoblin.plugins.recaptcha import tools as captcha_tools
+from mediagoblin import messages
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
+from mediagoblin.tools import request as request
+from werkzeug.wrappers import Request
 
 _log = logging.getLogger(__name__)
 PLUGIN_DIR = os.path.dirname(__file__)
@@ -46,6 +51,13 @@ def setup_plugin():
     _log.info('Done setting up recaptcha!')
 
 
+def transform_registration_form_class(request):
+    register_form = pluginapi.hook_handle("auth_get_registration_form", request)
+    register_form_base = register_form.__class__
+    register_form_base.g_recaptcha_response = captcha_forms.RecaptchaHiddenField('reCAPTCHA', id='g-recaptcha-response', name='g-recaptcha-response')
+    register_form_base.remote_address = wtforms.HiddenField('')
+
+
 def add_to_form_context(context):
     recaptcha_protocol = ''
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
@@ -64,7 +76,9 @@ def add_to_form_context(context):
 
 hooks = {
     'setup': setup_plugin,
-    'auth_captcha_challenge': captcha_tools.captcha_challenge,
+    'registration_form_transform': transform_registration_form,
+    'registration_form_class_transform': transform_registration_form_class,
+    'auth_extra_validation': captcha_tools.extra_validation,
     ('mediagoblin.auth.register',
      'mediagoblin/auth/register.html'): add_to_form_context,
 }
