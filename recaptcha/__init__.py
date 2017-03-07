@@ -33,11 +33,6 @@ def setup_plugin():
     _log.info('Setting up recaptcha...')
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     if config:
-        if config.get('RECAPTCHA_USE_SSL') == True:
-            _log.info('reCAPTCHA is configured to use SSL.')
-        else:
-            _log.info('reCAPTCHA is NOT configured to use SSL.')
-
         if config.get('RECAPTCHA_PUBLIC_KEY') == 'domainpublickey':
             _log.warn('reCAPTCHA public key was not specified.')
         if config.get('RECAPTCHA_PRIVATE_KEY') == 'domainprivatekey':
@@ -59,18 +54,7 @@ def transform_registration_form_class(request):
 
 
 def add_to_form_context(context):
-    recaptcha_protocol = ''
-    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
-    if config['RECAPTCHA_USE_SSL']:
-        recaptcha_protocol = 'https'
-    else:
-        recaptcha_protocol = 'http'
-    _log.debug('Connecting to reCAPTCHA service via %r', recaptcha_protocol)
-
-    context['captcha'] = True
-    context['recaptcha_protocol'] = recaptcha_protocol
     context['recaptcha_public_key'] = config.get('RECAPTCHA_PUBLIC_KEY')
-
     return context
 
 
