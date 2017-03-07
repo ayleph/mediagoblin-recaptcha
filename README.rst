@@ -15,10 +15,10 @@ account and add the domain for which you wish to use the reCAPTCHA
 service. You will need the public and private keys for that domain to 
 configure the recaptcha plugin.
 
-Set up the recaptcha plugin
-===========================
+Install the reCAPTCHA plugin
+============================
 
-1. Download the ``mediagoblin-recaptcha`` source and copy the 
+1. Download the ``mediagoblin-recaptcha`` source. Copy the 
    ``recaptcha`` directory into the MediaGoblin plugins directory.
 
    ::
@@ -33,46 +33,35 @@ Set up the recaptcha plugin
 
      $ pip install recaptcha-client
 
-3. Enable the mediagoblin-recaptcha plugin by adding the following line 
+Configure the reCAPTCHA plugin
+==============================
+
+1. Ensure that an authentication plugin is enabled in your mediagoblin 
+   configuration file. For example, to use the **basic_auth** plugin, 
+   make sure the line below exists in your config file.
+
+   ::
+
+     [[mediagoblin.plugins.basic_auth]]
+
+2. Enable the mediagoblin-recaptcha plugin by adding the following line 
    to the ``[plugins]`` section of your mediagoblin configuration file.
 
    ::
 
      [[mediagoblin.plugins.recaptcha]]
 
-4. Disable the basic authentication plugin in your mediagoblin 
-   configuration file. Change
-
-   ::
-
-     [[mediagoblin.plugins.basic_auth]]
-
-   to
-
-   ::
-
-     [[-mediagoblin.plugins.basic_auth]]
-
-5. Restart the MediaGoblin instance for the configuration file changes 
-   to be effective.
-
-Configure the recaptcha plugin
-==============================
-
-You must provide the public and private keys for your reCAPTCHA domain 
-and specify whether or not to use SSL. If your site is served over 
-https, set ``RECAPTCHA_USE_SSL = true``. If your site is served over 
-http, set ``RECAPTCHA_USE_SSL = false``. Failure to correctly set 
-``RECAPTCHA_USE_SSL`` will prevent the reCAPTCHA widget from displaying 
-properly. Add the following entries to your mediagoblin configuration 
-file under the recaptcha plugin.
+3. Enter your public and secret reCAPTCHA domain keys to your 
+   mediagoblin configuration file under the recaptcha plugin.
 
 ::
 
     [[mediagoblin.plugins.recaptcha]]
     RECAPTCHA_PUBLIC_KEY = 'domainpublickey'
     RECAPTCHA_PRIVATE_KEY = 'domainprivatekey'
-    RECAPTCHA_USE_SSL = true/false
+
+4. Restart the MediaGoblin instance for the configuration file changes 
+   to be effective.
 
 .. external links
 
