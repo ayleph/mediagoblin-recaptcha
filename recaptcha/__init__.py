@@ -57,13 +57,6 @@ def setup_plugin():
     _log.info('Done setting up recaptcha!')
 
 
-def transform_registration_form_class(request):
-    register_form = pluginapi.hook_handle("auth_get_registration_form", request)
-    register_form_base = register_form.__class__
-    register_form_base.g_recaptcha_response = captcha_forms.RecaptchaHiddenField('reCAPTCHA', id='g-recaptcha-response', name='g-recaptcha-response')
-    register_form_base.remote_address = wtforms.HiddenField('')
-
-
 def add_to_form_context(context):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     context['recaptcha_public_key'] = config.get('RECAPTCHA_PUBLIC_KEY')
