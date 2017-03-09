@@ -4,8 +4,9 @@ mediagoblin-recaptcha
 
 This plugin enables reCAPTCHA support for GNU MediaGoblin. To use 
 reCAPTCHA, you must have a (free) Google account with reCAPTCHA enabled 
-for your MediaGoblin domain. This plugin is currently incompatible with 
-the ``basic_auth`` plugin.
+for your MediaGoblin domain. This plugin does not provide 
+authentication; it simply adds a reCAPTCHA field to the registration 
+form provided by the configured authentication plugin.
 
 Create a reCAPTCHA account
 ==========================

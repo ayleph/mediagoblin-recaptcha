@@ -30,13 +30,15 @@ def extra_validation(register_form):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     recaptcha_private_key = config.get('RECAPTCHA_PRIVATE_KEY')
 
+    # Our hacky method of adding CAPTCHA fields to the form results 
+    # in multiple fields with the same name. Check the raw_data for 
+    # a non-empty string.
     if 'g_recaptcha_response' in register_form:
         recaptcha_response = register_form.g_recaptcha_response.data
         if recaptcha_response == u'':
             for raw_data in register_form.g_recaptcha_response.raw_data:
                 if raw_data != u'':
                     recaptcha_response = raw_data
-
     if 'remote_address' in register_form:
         remote_address = register_form.remote_address.data
         if remote_address == u'':
