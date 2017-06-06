@@ -17,9 +17,9 @@ import os
 import logging
 import wtforms
 
+from mediagoblin.init import ImproperlyConfigured
 from mediagoblin.plugins.recaptcha import forms as captcha_forms
 from mediagoblin.plugins.recaptcha import tools as captcha_tools
-from mediagoblin import messages
 from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
 from werkzeug.test import create_environ
@@ -31,12 +31,15 @@ PLUGIN_DIR = os.path.dirname(__file__)
 
 def setup_plugin():
     _log.info('Setting up recaptcha...')
+
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     if config:
         if config.get('RECAPTCHA_SITE_KEY') == 'domainsitekey':
-            _log.warn('reCAPTCHA site key was not specified.')
+            configuration_error = 'You must configure the recaptcha plugin site key.'
+            raise ImproperlyConfigured(configuration_error)
         if config.get('RECAPTCHA_SECRET_KEY') == 'domainsecretkey':
-            _log.warn('reCAPTCHA secret key was not specified.')
+            configuration_error = 'You must configure the recaptcha plugin secret key.'
+            raise ImproperlyConfigured(configuration_error)
 
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
