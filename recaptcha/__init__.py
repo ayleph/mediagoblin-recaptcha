@@ -33,10 +33,10 @@ def setup_plugin():
     _log.info('Setting up recaptcha...')
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     if config:
-        if config.get('RECAPTCHA_PUBLIC_KEY') == 'domainpublickey':
-            _log.warn('reCAPTCHA public key was not specified.')
-        if config.get('RECAPTCHA_PRIVATE_KEY') == 'domainprivatekey':
-            _log.warn('reCAPTCHA private key was not specified.')
+        if config.get('RECAPTCHA_SITE_KEY') == 'domainsitekey':
+            _log.warn('reCAPTCHA site key was not specified.')
+        if config.get('RECAPTCHA_SECRET_KEY') == 'domainsecretkey':
+            _log.warn('reCAPTCHA secret key was not specified.')
 
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
@@ -59,7 +59,7 @@ def setup_plugin():
 
 def add_to_form_context(context):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
-    context['recaptcha_public_key'] = config.get('RECAPTCHA_PUBLIC_KEY')
+    context['recaptcha_site_key'] = config.get('RECAPTCHA_SITE_KEY')
     return context
 
 

@@ -28,7 +28,7 @@ _log = logging.getLogger(__name__)
 
 def extra_validation(register_form):
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
-    recaptcha_private_key = config.get('RECAPTCHA_PRIVATE_KEY')
+    recaptcha_secret_key = config.get('RECAPTCHA_SECRET_KEY')
 
     # Our hacky method of adding CAPTCHA fields to the form results 
     # in multiple fields with the same name. Check the raw_data for 
@@ -49,7 +49,7 @@ def extra_validation(register_form):
     captcha_challenge_passes = False
 
     if recaptcha_response:
-        url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_private_key, recaptcha_response, remote_address)
+        url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_secret_key, recaptcha_response, remote_address)
         response = json.loads(urllib2.urlopen(url).read())
         captcha_challenge_passes = response['success']
 

@@ -17,12 +17,12 @@
 #}
 <input id="remote_address" name="remote_address" type="hidden" value="{{ request.access_route[-1] or request.remote_addr }}">
 <script src='https://www.google.com/recaptcha/api.js' async defer></script>
-<div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}"></div>
+<div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
 <noscript>
   <div>
     <div style="width: 302px; height: 422px; position: relative;">
       <div style="width: 302px; height: 422px; position: absolute;">
-        <iframe src="https://www.google.com/recaptcha/api/fallback?k={{ recaptcha_public_key }}"
+        <iframe src="https://www.google.com/recaptcha/api/fallback?k={{ recaptcha_site_key }}"
                 frameborder="0" scrolling="no"
                 style="width: 302px; height:422px; border-style: none;">
         </iframe>
