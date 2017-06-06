@@ -37,7 +37,7 @@ Install the reCAPTCHA plugin
 Configure the reCAPTCHA plugin
 ==============================
 
-1. Ensure that an authentication plugin is enabled in your mediagoblin 
+1. Ensure that an authentication plugin is enabled in your MediaGoblin 
    configuration file. For example, to use the **basic_auth** plugin, 
    make sure the line below exists in your config file.
 
@@ -46,14 +46,14 @@ Configure the reCAPTCHA plugin
      [[mediagoblin.plugins.basic_auth]]
 
 2. Enable the mediagoblin-recaptcha plugin by adding the following line 
-   to the ``[plugins]`` section of your mediagoblin configuration file.
+   to the ``[plugins]`` section of your MediaGoblin configuration file.
 
    ::
 
      [[mediagoblin.plugins.recaptcha]]
 
-3. Enter your site and secret reCAPTCHA domain keys to your 
-   mediagoblin configuration file under the recaptcha plugin.
+3. Enter your site and secret reCAPTCHA domain keys to your MediaGoblin 
+   configuration file under the recaptcha plugin.
 
 ::
 
