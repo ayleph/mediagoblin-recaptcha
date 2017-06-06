@@ -15,64 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import wtforms
 
-from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
-from mediagoblin.auth.tools import normalize_user_or_email_field
 
-#from wtfrecaptcha.fields import RecaptchaField
+class RecaptchaHiddenField(wtforms.HiddenField):
+    '''
+    The below syntax for overriding the name of a field was copied from 
+    code posted on github.com at the link below.
 
-class RegistrationForm(wtforms.Form):
-    username = wtforms.StringField(
-        _('Username'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field(allow_email=False)])
-    password = wtforms.PasswordField(
-        _('Password'),
-        [wtforms.validators.Required(),
-         wtforms.validators.Length(min=5, max=1024)])
-    email = wtforms.StringField(
-        _('Email address'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field(allow_user=False)])
-
-
-class LoginForm(wtforms.Form):
-    username = wtforms.StringField(
-        _('Username or Email'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field()])
-    password = wtforms.PasswordField(
-        _('Password'),
-        [wtforms.validators.Required()])
-    stay_logged_in = wtforms.BooleanField(
-        label='',
-        description=_('Stay logged in'))
-
-
-class ForgotPassForm(wtforms.Form):
-    username = wtforms.StringField(
-        _('Username or email'),
-        [wtforms.validators.Required(),
-         normalize_user_or_email_field()])
-
-
-class ChangeForgotPassForm(wtforms.Form):
-    password = wtforms.PasswordField(
-        'Password',
-        [wtforms.validators.Required(),
-         wtforms.validators.Length(min=5, max=1024)])
-    token = wtforms.HiddenField(
-        '',
-        [wtforms.validators.Required()])
-
-
-class ChangePassForm(wtforms.Form):
-    old_password = wtforms.PasswordField(
-        _('Old password'),
-        [wtforms.validators.Required()],
-        description=_(
-            "Enter your old password to prove you own this account."))
-    new_password = wtforms.PasswordField(
-        _('New password'),
-        [wtforms.validators.Required(),
-         wtforms.validators.Length(min=6, max=30)],
-        id="password")
+    https://github.com/wtforms/wtforms/issues/205
+    '''
+    def __init__(self, *args, **kwargs):
+        name = kwargs.pop('name', None)
+        super(RecaptchaHiddenField, self).__init__(*args, **kwargs)
+        if name:
+            self.name = name

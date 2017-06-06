@@ -13,133 +13,62 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from pkg_resources import resource_filename
 import os
 import logging
+import wtforms
 
-from mediagoblin.plugins.recaptcha import forms as auth_forms
-from mediagoblin.plugins.basic_auth import tools as auth_tools
-from mediagoblin.auth.tools import create_basic_user
-from mediagoblin.db.models import User
+from mediagoblin.init import ImproperlyConfigured
+from mediagoblin.plugins.recaptcha import forms as captcha_forms
+from mediagoblin.plugins.recaptcha import tools as captcha_tools
+from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
 from mediagoblin.tools import pluginapi
-from sqlalchemy import or_
-from mediagoblin.tools.staticdirect import PluginStatic
+from werkzeug.test import create_environ
+from werkzeug.wrappers import Request
+
 _log = logging.getLogger(__name__)
-
-
 PLUGIN_DIR = os.path.dirname(__file__)
 
 
 def setup_plugin():
     _log.info('Setting up recaptcha...')
+
     config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
     if config:
-        if config.get('RECAPTCHA_USE_SSL') == True:
-            _log.info('reCAPTCHA is configured to use SSL.')
-        else:
-            _log.info('reCAPTCHA is NOT configured to use SSL.')
+        if config.get('RECAPTCHA_SITE_KEY') == 'domainsitekey':
+            configuration_error = 'You must configure the recaptcha plugin site key.'
+            raise ImproperlyConfigured(configuration_error)
+        if config.get('RECAPTCHA_SECRET_KEY') == 'domainsecretkey':
+            configuration_error = 'You must configure the recaptcha plugin secret key.'
+            raise ImproperlyConfigured(configuration_error)
 
-        if config.get('RECAPTCHA_PUBLIC_KEY') == 'domainpublickey':
-            _log.warn('reCAPTCHA public key was not specified.')
-        if config.get('RECAPTCHA_PRIVATE_KEY') == 'domainprivatekey':
-            _log.warn('reCAPTCHA private key was not specified.')
-
-    routes = [
-        ('mediagoblin.plugins.recaptcha.register',
-         '/auth/recaptcha/register/',
-         'mediagoblin.plugins.recaptcha.views:register'),
-        ('mediagoblin.plugins.recaptcha.login',
-         '/auth/recaptcha/login/',
-         'mediagoblin.plugins.recaptcha.views:login'),
-        ('mediagoblin.plugins.recaptcha.edit.pass',
-         '/edit/password/',
-         'mediagoblin.plugins.recaptcha.views:change_pass'),
-        ('mediagoblin.plugins.recaptcha.forgot_password',
-         '/auth/forgot_password/',
-         'mediagoblin.plugins.recaptcha.views:forgot_password'),
-        ('mediagoblin.plugins.recaptcha.verify_forgot_password',
-         '/auth/forgot_password/verify/',
-         'mediagoblin.plugins.recaptcha.views:verify_forgot_password')]
-
-    pluginapi.register_routes(routes)
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
-        {'edit_link': 'mediagoblin/plugins/recaptcha/edit_link.html',
-         'fp_link': 'mediagoblin/plugins/recaptcha/fp_link.html',
-         'fp_head': 'mediagoblin/plugins/recaptcha/fp_head.html',
-         'create_account':
-            'mediagoblin/plugins/recaptcha/create_account_link.html'})
+        {'register_captcha': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
+
+    # Create dummy request object to find register_form.
+    environ = create_environ('/foo', 'http://localhost:8080/')
+    request = Request(environ)
+    register_form = pluginapi.hook_handle("auth_get_registration_form", request)
+    del request
+
+    # Add plugin-specific fields to register_form class.
+    register_form_class = register_form.__class__
+    register_form_class.g_recaptcha_response = captcha_forms.RecaptchaHiddenField('reCAPTCHA', id='g-recaptcha-response', name='g-recaptcha-response')
+    register_form_class.remote_address = wtforms.HiddenField('')
 
     _log.info('Done setting up recaptcha!')
 
 
-def get_user(**kwargs):
-    username = kwargs.pop('username', None)
-    if username:
-        user = User.query.filter(
-            or_(
-                User.username == username,
-                User.email == username,
-            )).first()
-        return user
-
-
-def create_user(registration_form):
-    user = get_user(username=registration_form.username.data)
-    if not user and 'password' in registration_form:
-        user = create_basic_user(registration_form)
-        user.pw_hash = gen_password_hash(
-            registration_form.password.data)
-        user.save()
-    return user
-
-
-def get_login_form(request):
-    return auth_forms.LoginForm(request.form)
-
-
-def get_registration_form(request):
-    return auth_forms.RegistrationForm(request.form)
-
-
-def gen_password_hash(raw_pass, extra_salt=None):
-    return auth_tools.bcrypt_gen_password_hash(raw_pass, extra_salt)
-
-
-def check_password(raw_pass, stored_hash, extra_salt=None):
-    if stored_hash:
-        return auth_tools.bcrypt_check_password(raw_pass,
-                                                stored_hash, extra_salt)
-    return None
-
-
-def no_pass_redirect():
-    return 'recaptcha'
-
-
-def auth():
-    return True
-
-
-def append_to_global_context(context):
-    context['pass_auth'] = True
+def add_to_form_context(context):
+    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
+    context['recaptcha_site_key'] = config.get('RECAPTCHA_SITE_KEY')
     return context
 
 
 hooks = {
     'setup': setup_plugin,
-    'authentication': auth,
-    'auth_get_user': get_user,
-    'auth_create_user': create_user,
-    'auth_get_login_form': get_login_form,
-    'auth_get_registration_form': get_registration_form,
-    'auth_no_pass_redirect': no_pass_redirect,
-    'auth_gen_password_hash': gen_password_hash,
-    'auth_check_password': check_password,
-    'auth_fake_login_attempt': auth_tools.fake_login_attempt,
-    #'template_global_context': append_to_global_context,
-    'static_setup': lambda: PluginStatic(
-        'coreplugin_recaptcha',
-        resource_filename('mediagoblin.plugins.recaptcha', 'static'))
+    'auth_extra_validation': captcha_tools.extra_validation,
+    ('mediagoblin.auth.register',
+     'mediagoblin/auth/register.html'): add_to_form_context,
 }

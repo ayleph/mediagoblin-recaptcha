@@ -13,109 +13,53 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import bcrypt
-import random
+import logging
 
-from mediagoblin import mg_globals
-from mediagoblin.tools.crypto import get_timed_signer_url
-from mediagoblin.tools.mail import send_email
-from mediagoblin.tools.template import render_template
+from mediagoblin import messages
+from mediagoblin.tools import pluginapi
+from mediagoblin.tools.translate import lazy_pass_to_ugettext as _
+from recaptcha.client import captcha
 
+import json
+import urllib2
 
-def bcrypt_check_password(raw_pass, stored_hash, extra_salt=None):
-    """
-    Check to see if this password matches.
-
-    Args:
-    - raw_pass: user submitted password to check for authenticity.
-    - stored_hash: The hash of the raw password (and possibly extra
-      salt) to check against
-    - extra_salt: (optional) If this password is with stored with a
-      non-database extra salt (probably in the config file) for extra
-      security, factor this into the check.
-
-    Returns:
-      True or False depending on success.
-    """
-    if extra_salt:
-        raw_pass = u"%s:%s" % (extra_salt, raw_pass)
-
-    hashed_pass = bcrypt.hashpw(raw_pass.encode('utf-8'), stored_hash)
-
-    # Reduce risk of timing attacks by hashing again with a random
-    # number (thx to zooko on this advice, which I hopefully
-    # incorporated right.)
-    #
-    # See also:
-    rand_salt = bcrypt.gensalt(5)
-    randplus_stored_hash = bcrypt.hashpw(stored_hash, rand_salt)
-    randplus_hashed_pass = bcrypt.hashpw(hashed_pass, rand_salt)
-
-    return randplus_stored_hash == randplus_hashed_pass
+_log = logging.getLogger(__name__)
 
 
-def bcrypt_gen_password_hash(raw_pass, extra_salt=None):
-    """
-    Generate a salt for this new password.
+def extra_validation(register_form):
+    config = pluginapi.get_config('mediagoblin.plugins.recaptcha')
+    recaptcha_secret_key = config.get('RECAPTCHA_SECRET_KEY')
 
-    Args:
-    - raw_pass: user submitted password
-    - extra_salt: (optional) If this password is with stored with a
-      non-database extra salt
-    """
-    if extra_salt:
-        raw_pass = u"%s:%s" % (extra_salt, raw_pass)
+    # Our hacky method of adding CAPTCHA fields to the form results 
+    # in multiple fields with the same name. Check the raw_data for 
+    # a non-empty string.
+    if 'g_recaptcha_response' in register_form:
+        recaptcha_response = register_form.g_recaptcha_response.data
+        if recaptcha_response == u'':
+            for raw_data in register_form.g_recaptcha_response.raw_data:
+                if raw_data != u'':
+                    recaptcha_response = raw_data
+    if 'remote_address' in register_form:
+        remote_address = register_form.remote_address.data
+        if remote_address == u'':
+            for raw_data in register_form.remote_address.raw_data:
+                if raw_data != u'':
+                    remote_address = raw_data
 
-    return unicode(
-        bcrypt.hashpw(raw_pass.encode('utf-8'), bcrypt.gensalt()))
+    captcha_challenge_passes = False
+    server_response = ''
 
+    if recaptcha_response:
+        url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_secret_key, recaptcha_response, remote_address)
+        server_response = json.loads(urllib2.urlopen(url).read())
+        captcha_challenge_passes = server_response['success']
 
-def fake_login_attempt():
-    """
-    Pretend we're trying to login.
+    if not captcha_challenge_passes:
+        register_form.g_recaptcha_response.errors.append(
+            _('Sorry, CAPTCHA attempt failed.'))
+        _log.info('Failed registration CAPTCHA attempt from %r.', remote_address)
+        _log.debug('captcha response is: %r', recaptcha_response)
+        if server_response:
+            _log.debug('server response is: %r' % response)
 
-    Nothing actually happens here, we're just trying to take up some
-    time, approximately the same amount of time as
-    bcrypt_check_password, so as to avoid figuring out what users are
-    on the system by intentionally faking logins a bunch of times.
-    """
-    rand_salt = bcrypt.gensalt(5)
-
-    hashed_pass = bcrypt.hashpw(str(random.random()), rand_salt)
-
-    randplus_stored_hash = bcrypt.hashpw(str(random.random()), rand_salt)
-    randplus_hashed_pass = bcrypt.hashpw(hashed_pass, rand_salt)
-
-    randplus_stored_hash == randplus_hashed_pass
-
-
-EMAIL_FP_VERIFICATION_TEMPLATE = (
-    u"{uri}?"
-    u"token={fp_verification_key}")
-
-
-def send_fp_verification_email(user, request):
-    """
-    Send the verification email to users to change their password.
-
-    Args:
-    - user: a user object
-    - request: the request
-    """
-    fp_verification_key = get_timed_signer_url('mail_verification_token') \
-            .dumps(user.id)
-
-    rendered_email = render_template(
-        request, 'mediagoblin/plugins/recaptcha/fp_verification_email.txt',
-        {'username': user.username,
-         'verification_url': EMAIL_FP_VERIFICATION_TEMPLATE.format(
-             uri=request.urlgen('mediagoblin.plugins.recaptcha.verify_forgot_password',
-                                qualified=True),
-             fp_verification_key=fp_verification_key)})
-
-    # TODO: There is no error handling in place
-    send_email(
-        mg_globals.app_config['email_sender_address'],
-        [user.email],
-        'GNU MediaGoblin - Change forgotten password!',
-        rendered_email)
+    return captcha_challenge_passes
