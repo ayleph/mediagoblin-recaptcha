@@ -47,17 +47,19 @@ def extra_validation(register_form):
                     remote_address = raw_data
 
     captcha_challenge_passes = False
+    server_response = ''
 
     if recaptcha_response:
         url = "https://www.google.com/recaptcha/api/siteverify?secret=%s&response=%s&remoteip=%s" % (recaptcha_secret_key, recaptcha_response, remote_address)
-        response = json.loads(urllib2.urlopen(url).read())
-        captcha_challenge_passes = response['success']
+        server_response = json.loads(urllib2.urlopen(url).read())
+        captcha_challenge_passes = server_response['success']
 
     if not captcha_challenge_passes:
         register_form.g_recaptcha_response.errors.append(
             _('Sorry, CAPTCHA attempt failed.'))
+        _log.info('Failed registration CAPTCHA attempt from %r.', remote_address)
         _log.debug('captcha response is: %r', recaptcha_response)
-        _log.debug('remote address is: %r', remote_address)
-        _log.debug('server response is: %r' % response)
+        if server_response:
+            _log.debug('server response is: %r' % response)
 
     return captcha_challenge_passes
