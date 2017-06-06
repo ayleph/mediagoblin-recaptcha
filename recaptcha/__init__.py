@@ -44,7 +44,7 @@ def setup_plugin():
     pluginapi.register_template_path(os.path.join(PLUGIN_DIR, 'templates'))
 
     pluginapi.register_template_hooks(
-        {'captcha_challenge': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
+        {'register_captcha': 'mediagoblin/plugins/recaptcha/captcha_challenge.html'})
 
     # Create dummy request object to find register_form.
     environ = create_environ('/foo', 'http://localhost:8080/')
