@@ -60,6 +60,6 @@ def extra_validation(register_form):
         _log.info('Failed registration CAPTCHA attempt from %r.', remote_address)
         _log.debug('captcha response is: %r', recaptcha_response)
         if server_response:
-            _log.debug('server response is: %r' % response)
+            _log.debug('server response is: %r' % server_response)
 
     return captcha_challenge_passes
